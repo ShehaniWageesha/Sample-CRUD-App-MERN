@@ -1,16 +1,39 @@
 /** @format */
 
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import DatePicker from 'react-datepicker';
+import { getSingleTodo,updateTodos } from '../../services/todo';
 import 'react-datepicker/dist/react-datepicker.css';
-import { addTodos } from '../../services/todo';
-class CreateTodo extends Component {
+
+class EditTodos extends Component {
   state = {
     username: '',
     description: '',
-    duration: 1,
+    duration: 0,
     date: new Date()
   };
+
+  componentDidMount() {
+    this.fetchTodos();   
+   }
+    
+  fetchTodos = async () => {
+    try {
+      
+      const response = await getSingleTodo(this.props.match.params.id);
+
+     this.setState({
+          username: response.data.username,
+          description: response.data.description,
+          duration: response.data.duration,
+          date: new Date(response.data.date),
+        });
+    
+    } catch(e) {
+      // error handling
+    }
+  }
 
   onChangeUsername = (e) => {
     this.setState({
@@ -41,19 +64,15 @@ class CreateTodo extends Component {
       duration: this.state.duration,
       date: this.state.date,
     };
-    try {
-      const response = await addTodos(todo);
-      // success scenario handle here
-      if (response.data) {
-      //  console.log(response.data);
-      }
-
-    } catch(ex) {
+    
+    try{
+      const response = await updateTodos(this.props.match.params.id,todo);
+      console.log(response.data);
+    
+    } catch(e) {
       // error handling
-      // show proper error message to user
     }
-   
-    this.setState({ username: '' });
+  
     this.setState({ description: '' });
     this.setState({ duration: '' });
     this.setState({ date: new Date() });
@@ -63,7 +82,7 @@ class CreateTodo extends Component {
   render() {
     return (
       <div>
-        <h3>Create New Exercise Log</h3>
+        <h3>Edit Exercise Log</h3>
         <br></br>
         <form onSubmit={this.onSubmit}>
           <div className="form-group">
@@ -108,7 +127,7 @@ class CreateTodo extends Component {
           <div className="form-group">
             <input
               type="submit"
-              value="Create Exercise Log"
+              value="Edit Exercise Log"
               className="btn btn-primary"
             />
           </div>
@@ -117,5 +136,13 @@ class CreateTodo extends Component {
     );
   }
 }
-
-export default CreateTodo;
+    
+EditTodos.propTypes = {
+  match: PropTypes.shape({
+    params: PropTypes.shape({
+      id: PropTypes.any
+     
+    })
+  }),
+}
+export default EditTodos;

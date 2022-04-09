@@ -2,7 +2,7 @@
 
 import React, { Component } from 'react';
 import Todo from '../../components/Todo/index';
-import { getTodos } from '../../services/todo';
+import { deleteTodo, getTodos } from '../../services/todo';
 
 class TodosList extends Component {
   state = {
@@ -19,6 +19,22 @@ class TodosList extends Component {
 
       this.setState({ todos: response.data || [] });
     
+    } catch(e) {
+      // error handling
+    }
+  }
+
+  removeTodo = async (id) => {
+    try {
+      const response = await deleteTodo(id);
+
+      // check response validation and success logic
+      if (response.data) {
+        this.setState({
+          todos: this.state.todos.filter((el) => el._id !== id),
+        });
+      }
+
     } catch(e) {
       // error handling
     }
@@ -48,6 +64,7 @@ class TodosList extends Component {
               <th>Description</th>
               <th>Duration</th>
               <th>Date</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>{this.todosList()}</tbody>
